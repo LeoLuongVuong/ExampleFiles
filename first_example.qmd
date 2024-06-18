@@ -7,6 +7,7 @@ editor: visual
 date: "Today"
 editor_options: 
   chunk_output_type: console
+bibliography: references.bib
 ---
 
 ## Quarto
@@ -15,7 +16,7 @@ Quarto enables you to weave together content and executable code into a finished
 
 ## Running Code
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this [@miglioretti2006]:
 
 ```{r}
 1 + 1
@@ -38,4 +39,3 @@ summary(mtcars)
 
 
 ```
-
