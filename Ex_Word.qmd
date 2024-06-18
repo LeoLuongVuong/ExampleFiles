@@ -1,0 +1,68 @@
+---
+title: "Word output using template"
+format:
+  docx:
+    toc: true
+    toc-depth: 3
+    toc-title: "A different toctitle"
+    reference-doc: WordTemplate.docx
+execute: 
+  echo: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(tidyverse)
+library(pander)
+```
+
+# A level 1 title
+
+## A level 2 title: R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+### A level 3 title
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE, fig.cap="a figure-caption"}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+### A small table
+
+```{r}
+nselect <- 5
+```
+
+
+A table with only `r nselect` of the `r nrow(cars)` observations
+
+```{r}
+#| label: tbl-withcap
+#| tbl-cap: A table caption
+pander(cars[1:nselect,])
+
+```
+
+
+# A final title
+
+Some text referencing @tbl-withcap.
+
+## Now really the final title
+
+Just some text

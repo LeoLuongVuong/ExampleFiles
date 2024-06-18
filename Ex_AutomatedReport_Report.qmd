@@ -1,0 +1,46 @@
+---
+params:
+  title: ""
+  subtitle: ""
+  date: ""
+format:
+  pdf:
+    number_section: yes
+    toc: yes
+    toc_depth: 4
+    include-in-header: header.tex
+title: "`r params$title`"
+subtitle: "`r params$subtitle`"
+date: "`r params$date`"
+---
+
+
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(pander)
+```
+
+```{r}
+
+ggplot(dftemp, aes(x,y))+
+  geom_point()+
+  theme_bw()
+
+```
+
+\newpage
+
+```{r}
+
+pander( dftemp[1:5,],
+        caption = sprintf("First 5 rows of data for country %s",titletemp),
+        split.table = Inf,
+        missing = "")
+
+```
+
+

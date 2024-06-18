@@ -1,0 +1,273 @@
+---
+title: "Tutorial - Labelled Data in R"
+subtitle: "To be completed"
+format:
+  pdf:
+    template: header.tex
+execute: 
+  echo: true
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(pander)
+library(tidyverse)
+library(ggplot2)
+library(gtsummary)
+library(gt)
+
+
+set.seed(654)   # Because later I sample rows to have a smaller table. This keeps the output stable
+
+```
+
+# Intro
+
+Where other statistics-packages like SPSS and SAS offer working with labelled data by default, that approach is less common in R.
+
+We differentiate two types of labels:
+
+  + Variable labels
+  
+     - variable name is short for convenience (e.g. `mh_rad`), where the label contains a more elaborate explanation (Medical History: Prior Radiotherapy performed)
+     
+  + Value labels
+  
+     - values can be 1, 2, ..., 5, 98, 99
+     - where the labels are 'Antwerp', 'Brussels', ..., 'Mechelen', 'Refused answer', 'Missing answer'
+     
+For the latter, R tends to work with factors, although there are some differences in working with it (factors are referenced by label, not by value).
+
+As, with the use of factors, we have a good alternative, the focus in this document is on working with variable labels
+
+# Overview
+
+  + Read in SAS or SPSS data
+  + Create labelled data
+  + Retrieve a dictionary
+  + Data wrangling with labelled data 
+  + Restore labels
+  + Plot with labels
+  + Tables with labels
+  
+
+# Packages
+
+  + `labelled`
+  + `sjlabelled`
+  + `haven`
+  + `expss`
+
+# Example/Workflow
+
+## Read in Labelled Data
+
+
+```{r}
+
+df_spss <- haven::read_spss("cars.sav")
+
+names(df_spss) <- tolower(names(df_spss))
+
+str(df_spss)
+
+
+```
+
+
+## Add labels to dataframe
+
+The first approach uses a special class (`labelled`), which is less compatible with other R-functions compared to having the labels as attributes, as in the second example (coupled to the functions used: the first uses functions from the `expss`-package, the second from `sjlabelled`)
+
+### Define in R
+
+```{r}
+
+df_R <- expss::apply_labels(mtcars,
+                      mpg = "Miles/(US) gallon",
+                      cyl = "Number of cylinders",
+                      disp = "Displacement (cu.in.)",
+                      hp = "Gross horsepower",
+                      drat = "Rear axle ratio",
+                      wt = "Weight (1000 lbs)",
+                      qsec = "1/4 mile time",
+                      vs = "Engine",
+                      vs = c("V-engine" = 0,
+                             "Straight engine" = 1),
+                      am = "Transmission",
+                      am = c("Automatic" = 0,
+                             "Manual"=1),
+                      gear = "Number of forward gears",
+                      carb = "Number of carburetors"
+)
+
+
+names(df_R)[names(df_R) == "wt"] <- "weight"
+
+str(df_R)
+
+```
+
+### Define externally
+
+```{r}
+
+newlabs <- readxl::read_excel("labelsmtcars.xlsx")
+
+
+df_R2 <- mtcars
+
+
+for(i in names(df_R2)){
+  
+  sel <- which(newlabs$Var == i)
+  
+  if(length(sel) > 0){
+    
+    sjlabelled::set_label(df_R2[[i]]) <- newlabs$lab[sel]
+    
+  }
+  
+}
+
+names(df_R2)[names(df_R2) == "wt"] <- "weight"
+
+str(df_R2)
+
+```
+
+
+
+## Retrieve dictionary
+
+```{r}
+
+dict_spss <- labelled::look_for(df_spss)
+dict_spss
+
+
+dict_R <- labelled::look_for(df_R)
+dict_R
+
+
+dict_R2 <- labelled::look_for(df_R2)
+dict_R2
+
+
+df_R2 <- df_R2%>%mutate(am2 = factor(am, levels = c(0,1),
+                                          labels = c("Automatic", "Manual")))
+
+```
+
+
+
+# Data wrangling
+
+
+# Restore labels
+
+
+# Tables
+
+Packages `gtsummary` and `gt` work perfectly fine with labels:
+
+## gtsummary
+
+
+### SPSS
+
+```{r}
+
+df_spss %>% mutate(cylinder = sprintf("Cyl:%s", cylinder)) %>% tbl_summary( by = cylinder)
+
+```
+
+### apply_label
+
+```{r}
+
+df_R %>% tbl_summary( by = cyl)
+
+```
+
+### excel-based
+
+```{r}
+
+df_R2 %>% tbl_summary( by = cyl)
+
+```
+
+\blandscape
+
+## gt
+
+
+### SPSS
+
+```{r}
+
+gt(df_spss%>%sample_n(20)%>%group_by(cylinder))%>%
+  tab_header(title = "Just a title",
+             subtitle = "With a subtitle")%>%
+  tab_spanner(label = "First 3 columns",
+              columns = 1:3)%>%
+  tab_spanner(label = "Last three columns",
+              columns = (ncol(df_spss)-2):(ncol(df_spss)) )
+  
+  
+
+```
+
+### apply_label
+
+```{r}
+
+
+
+```
+
+### excel-based
+
+```{r}
+
+
+
+```
+
+
+\elandscape
+
+## Flextable
+
+https://davidgohel.github.io/flextable/reference/set_header_labels.html
+
+# Plots
+
+```{r}
+
+
+plotfun <- function(fdata){  ggplot(fdata, aes( weight, mpg))+
+    geom_point()+
+    theme_bw()
+}
+
+
+
+
+plotfun(df_spss) + ggtitle("No labels used")
+
+plotfun(df_spss) + ggeasy::easy_labs() + ggtitle("SPSS based data")
+
+plotfun(df_R) + ggeasy::easy_labs() + ggtitle("apply_label based data")
+
+plotfun(df_R2) + ggeasy::easy_labs() + ggtitle("labels through excel based data")
+
+
+
+
+```
+

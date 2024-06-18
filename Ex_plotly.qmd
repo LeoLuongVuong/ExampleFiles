@@ -1,0 +1,237 @@
+---
+title: "Overview of Forecasting Accuracy"
+author: "Dries Reynders"
+format:
+  html: 
+    toc: true
+    toc-depth: 4
+    embed-resources: true
+    footnotes-hover: true
+    reference-location: margin
+    self-contained: true
+execute: 
+  warning: false
+  message: false
+date: 2023-02-15
+csl: sbr.csl
+editor_options: 
+  chunk_output_type: console
+---
+
+# Plotly
+
+```{{r}}
+#| include: false
+
+library(tidyverse)
+library(plotly)
+library(MASS)
+library(quantreg)
+
+
+# devtools::install_github("thomasp85/transformr")
+library(gganimate)
+library(magick)
+library(gapminder)
+
+```
+
+
+```{r}
+#| include: false
+
+library(tidyverse)
+library(plotly)
+library(MASS)
+library(quantreg)
+
+
+# devtools::install_github("thomasp85/transformr")
+library(transformr)
+library(gganimate)
+library(magick)
+library(gapminder)
+
+```
+
+
+
+## Example 1
+
+
+
+```{r}
+
+N <- 500
+
+df <- data.frame(ID = sprintf("ABC_%03d", 1:N),
+                 Sex = sample(c("M","F"), N, replace = TRUE),
+                 Class = sample(LETTERS[1:3], N, replace = TRUE),
+                 Outcome = rnorm(N)
+                 )
+
+summdf <- df%>%group_by(Sex, Class)%>%
+  summarise(M = mean(Outcome))
+
+
+p <- ggplot(df, aes(x = Class, y = Outcome))+
+  geom_boxplot()+
+  geom_point(data = summdf, mapping = aes(y = M), color = "red")+
+  geom_line(data = summdf, mapping = aes(y = M), color = "red")+
+  geom_point(data = df%>%filter(ID == "ABC_001"), color = "blue")+
+  geom_text(data = df%>%filter(ID == "ABC_001"), aes(label = ID), vjust = 1.2, hjust = 0.1)+
+  facet_wrap(~Sex)+
+  theme_bw()
+```
+
+
+
+```{r}
+ggplotly(p)
+```
+
+
+## Example 2
+
+
+source: https://plotly.com/ggplot2/geom_quantile/
+
+```{r}
+
+
+df <- MASS::birthwt
+
+df <- with(df, { #Make sure variables properly show up as categories
+  race <- factor(race, labels = c("white", "black", "other"))
+  ptd <- factor(ptl > 0)
+  ftv <- factor(ftv)
+  levels(ftv)[-(1:2)] <- "2+"
+  data.frame(low = factor(low), age, lwt, race, smoke = (smoke > 0),
+             ptd, ht = (ht > 0), ui = (ui > 0), ftv, bwt)
+})
+
+p <- ggplot(df, aes(lwt, bwt, colour = smoke)) +
+  geom_point(size = 1) +
+  geom_quantile(quantiles = 0.5)
+
+fig <- ggplotly(p)
+
+fig
+```
+
+
+
+## Example 3
+
+source: https://plotly.com/ggplot2/geom_text/
+
+```{r}
+recent_turnout <- read.csv("https://raw.githubusercontent.com/plotly/datasets/master/european_turnout.csv",stringsAsFactors = FALSE)
+recent_turnout$region <- factor(recent_turnout$region, levels=c("British","Northern","Western","Mediterranean","Central/Eastern"))
+
+
+p <- recent_turnout %>%
+  ggplot(aes(x=nat_turnout,y=euro_turnout)) + 
+  geom_text(aes(size=population/3.5, label=abbreviation, colour=region), alpha=1) +
+  labs(title = "Recent turnout in European Union countries",
+       x = "Latest legislative or presidential election (whichever had higher turnout)",
+       y = "May 2019 European Parliament election")
+fig <- ggplotly(p)
+
+fig
+```
+
+
+# GGanimate
+
+https://gganimate.com/articles/gganimate.html
+
+
+
+## Example 1
+
+```{r}
+
+p <- ggplot(
+  gapminder, 
+  aes(x = gdpPercap, y=lifeExp, size = pop, colour = country)
+  ) +
+  geom_point(show.legend = FALSE, alpha = 0.7) +
+  scale_color_viridis_d() +
+  scale_size(range = c(2, 12)) +
+  scale_x_log10() +
+  labs(x = "GDP per capita", y = "Life expectancy")
+
+```
+
+
+```{r}
+
+p + transition_time(year) +
+  labs(title = "Year: {frame_time}")
+
+```
+
+## Example 2
+
+source: https://gist.github.com/thomasp85/05169ad44ddcc8ed56da6ff7bf7fbe36
+
+```{r}
+
+
+
+
+p <- ggplot(gapminder, aes(gdpPercap, lifeExp, size = pop, colour = country)) +
+  geom_point(alpha = 0.7) +
+  scale_colour_manual(values = country_colors) +
+  scale_size(range = c(2, 12)) +
+  scale_x_log10() +
+  facet_wrap(~continent) +
+  theme(legend.position = 'none') +
+  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'life expectancy') +
+  transition_time(year) +
+  ease_aes('linear')
+
+animate(p, 100, 10)
+```
+
+
+## Example 3
+
+
+```{r}
+
+N <- 500
+
+df <- data.frame(Treatment = sample(LETTERS[1:2], N, replace = TRUE),
+                 Subgroup = sample(letters[1:3], N, replace=TRUE),
+                 Outcome = rnorm(N))
+
+quantsdf <- df%>%
+  group_by(Treatment, Subgroup)%>%
+  summarise(across(Outcome, 
+                   list(Q1 = ~ quantile(.,c(0.25)), M = ~quantile(.,0.5), Q3 = ~quantile(., 0.75)),
+                   .names = "{fn}"))%>%
+  pivot_longer(Q1:Q3,
+               names_to = "Quantile",
+               values_to = "Value")
+
+
+p <- ggplot(df, aes(Outcome))+
+  geom_density()+
+  geom_vline(data = quantsdf, mapping = aes(xintercept = Value, linetype = Quantile, color = Quantile))+
+  theme_bw()+
+  facet_wrap(~Treatment)
+
+
+anime <- p+transition_states(Subgroup)
+
+```
+
+
+```{r}
+anime
+```
+
+
+

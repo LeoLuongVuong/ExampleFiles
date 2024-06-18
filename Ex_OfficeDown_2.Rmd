@@ -1,0 +1,276 @@
+---
+title: "Style text with officedown"
+author: "David Gohel - Tiny adaptation by Dries Reynders "
+output:
+  officedown::rdocx_document: 
+    reference_docx: template.docx
+  lists:
+    ol.style: Default ol
+    ul.style: Default ul
+  tables:
+    conditional:
+      first_row: yes
+      first_column: yes
+      last_row: no
+      last_column: no
+      no_hband: no
+      no_vband: yes
+  bookdown::pdf_document2: default
+---
+
+```{r include=FALSE}
+library(knitr)
+library(officedown)
+library(officer)
+library(magrittr)
+library(ggplot2)
+
+opts_chunk$set(echo = TRUE, tab.lp="Table:", fig.lp="Figure:")
+fp <- fp_par(text.align = "center", padding = 20, border.bottom = fp_border())
+ft <- fp_text(font.size = 12, bold = TRUE, color = "#C32900", font.family = "Cambria")
+```
+
+
+# Prerequisites
+
+This is a _sample_ book written with R package **bookdown** and R package **officedown**.
+
+The `r ftext("officedown", ft)` package can be installed from CRAN or Github: `r fp`
+
+```{r eval=FALSE}
+install.packages("officedown")
+# remotes::install_github("davidgohel/officedown")
+```
+
+
+# How this document was built
+
+This document is based on the example by `OfficeDown`-author David Gohel. The original example can be viewed by running following code:
+
+```{r, eval = FALSE}
+
+dir <- system.file(package = "officedown", "examples", "bookdown")
+file.copy(dir, getwd(), recursive = TRUE, overwrite = TRUE)
+rmarkdown::render_site("bookdown")
+browseURL("bookdown/_book/bookdown.docx")
+
+```
+
+Doing so, lets you view the final word-document, but also creates a folder `bookdown` that contains several interesting files. My (= DR) only contribution to this document is to combine the relevant parts into one rmd-document. These relevant parts are:
+
+  - index.rmd
+  - 01-intro.rmd
+  - ...
+  - 05-plots.rmd
+  
+All were just copy-pasted.
+
+The yaml-header was built using the info in `_output.yml` and `template.docx` was copied to the same folder as this final document.
+
+Finally, I want to refer to the [vignette by the package's author](https://ardata-fr.github.io/officeverse/index.html).
+
+# Introduction
+
+```{r}
+ft_link <- fp_text(font.size = 9, italic = TRUE, color = "#C32900", font.family = "Cambria")
+```
+
+The purpose of this bookdown is to test the functionality of the officedown package. It contains texts 
+of no interest but illustrates most of the functions of the package. 
+
+## List demo {#lists}
+
+* This is a linked reference to Chapter \@ref(lists).
+* This is a linked reference to Chapter \@ref(tables).
+* This is a linked reference to Chapter \@ref(sections).
+* Figures and tables can have auto-numbered captions that can also be cross referenced: 
+    * This is a linked reference to a figure: \@ref(fig:ts-plot), its number is computed by Word 
+    and it's linked to the corresponding graphic when clicking on it.
+    * This is a linked reference to a table: \@ref(tab:mtcars), its number is computed by Word 
+    and it's linked to the corresponding table when clicking on it.
+
+
+1. An item
+1. An item
+    1. An item
+        1. An item
+        2. An item
+    2. An item
+2. An item
+
+
+# Tables of content {#toc}
+
+## Table of figures
+
+<!---BLOCK_TOC{style: 'Image Caption'}--->
+
+## Table of tables
+
+You can use `officer` code : 
+
+```{r}
+block_toc(style = "Table Caption")
+```
+
+## Table of content
+
+<!---BLOCK_TOC--->
+
+\newpage
+
+
+```{r include=FALSE}
+dat <- cbind(
+  data.frame(car = row.names(mtcars), stringsAsFactors = FALSE),
+  mtcars )
+```
+
+# Tables {#tables}
+
+
+This is famous `mtcars` dataset:
+
+```{r tab.cap='mtcars', tab.id='mtcars', first_column = TRUE}
+head(dat, n = 10)
+```
+
+
+This is famous `iris` dataset:
+
+```{r tab.cap='iris', tab.id='iris', no_hband = TRUE, first_column = FALSE}
+head(iris)
+```
+
+
+This a flextable:
+
+```{r tab.cap='flextable', tab.id='flextable'}
+if(require("flextable")){
+  ft <- flextable(head(mtcars, n = 10))
+  ft <- fontsize(ft, size = 9, part = "all")
+  ft <- compose(x = ft, j = "mpg",
+    value = as_paragraph(
+      value = lollipop(value = mpg, min = 0, max = 30, positivecol = "#DD2233", rangecol = "#DD2233")
+      ))
+  ft <- compose(x = ft, j = "drat",
+    value = as_paragraph(
+      value = minibar(value = drat, max = 6, barcol = "#DD3322")
+      ))
+  ft <- compose(x = ft, j = "qsec",
+    value = as_paragraph(
+      value = linerange(value = qsec)
+      ))
+  ft <- set_table_properties(ft, layout = "autofit")
+  ft
+  }
+```
+
+
+
+# Section {#sections}
+
+## A two columns section
+
+<!---BLOCK_MULTICOL_START--->
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu,
+quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae
+iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam,
+at euismod massa magna at magna. 
+
+`r run_columnbreak()`Curabitur ligula quam, iaculis faucibus orci quis,
+vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus
+sed, sollicitudin tortor. Donec consequat congue erat in iaculis. 
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu,
+quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. 
+
+<!---BLOCK_MULTICOL_STOP{widths: [3,3], space: 0.2, sep: true}--->
+
+## End of two columns section
+
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu,
+quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae
+iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam,
+at euismod massa magna at magna.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu,
+quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae
+iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam,
+at euismod massa magna at magna. 
+
+<!---BLOCK_LANDSCAPE_START--->
+
+## Landscape section
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu,
+quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae
+iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam,
+at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. 
+
+```{r, echo=FALSE, fig.cap='sin function', fig.id='sinus', fig.width=6, fig.height=4, fig.align='center'}
+x <- seq(1,30, by = .1)
+plot(x, sin(x), type = "l", main = "", xlab = "", ylab = "", col = "#CC4300")
+```
+
+<!---BLOCK_LANDSCAPE_STOP--->
+
+## Section margins
+
+
+`r ftext("This is a custom text and the formatting of the paragraph is modified", fp_text(color = "orange", font.size = 40, bold = TRUE, font.family = "Bradley Hand"))` `r fp_par(text.align = "center", padding.top = 30)`
+
+```{r}
+img.file <- file.path( R.home("doc"), "html", "logo.jpg" )
+text_format <- fp_text(bold = TRUE, font.size = 24, font.family = "Bradley Hand", color = "#006699")
+fpar_1 <- fpar(
+  ftext("Hello World, how ", prop = text_format ),
+  external_img(src = img.file, height = 1.06/3, width = 1.39/3),
+  ftext(" you?", prop = text_format ), fp_p = fp_par(text.align = "center") )
+fpar_1
+```
+
+The following instructions define the section that applies to the text preceding
+it up to the end of the previous section.
+
+```{r}
+ps <- prop_section(
+  page_margins = page_mar(bottom = 1, top = 2, left = 1.5),
+  type = "oddPage"
+)
+block_section(ps)
+```
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu,
+quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae
+iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam,
+at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat.
+Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc
+bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci
+quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet
+tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis.
+Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+
+
+# Graphics {#graphics}
+
+
+```{r fig.cap="economics plot", fig.id = "ts-plot", fig.cap.style="Image Caption"}
+year <- function(x) as.POSIXlt(x)$year + 1900
+ggplot(economics, aes(date, unemploy / pop)) +
+  geom_line() + theme_minimal()
+```
+
+\newpage
+
+Math latex in captions is supported:
+
+```{r fig.cap="$\\sum_{i=1}^n X_i$", fig.id = "dotplot"}
+ggplot(mpg, aes(displ, cty, color = trans)) + geom_point() + theme_minimal()
+```
+
+
+
+

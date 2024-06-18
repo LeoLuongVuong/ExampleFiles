@@ -1,0 +1,70 @@
+---
+title: "Some chunk options"
+format: html
+execute: 
+  echo: false
+---
+
+# Echo
+
+```{r}
+#| echo: true
+
+2*3
+```
+
+```{r}
+#| echo: false
+
+2*4
+```
+
+
+# Eval
+
+```{r}
+#| eval: false
+#| echo: true
+
+1 + 1 
+```
+
+
+# Include
+
+```{r}
+#| include: false
+a <- 2
+
+3*a
+```
+
+
+```{r}
+
+4*a
+
+```
+
+
+
+# Cache
+
+```{r}
+
+
+a <- 3
+
+```
+
+
+```{r}
+#| cache: true
+
+b <- 4
+
+
+a*b
+
+```
+

@@ -1,0 +1,81 @@
+---
+title: "Dynamic Reporting with R"
+subtitle: "Quarto to enhance workflow and reproducibility"
+date: "`r Sys.Date()`"
+format:
+  revealjs:
+    self-contained: true 
+    slide-number: true
+    slide-level: 3
+    preview-links: auto
+    logo: images/monkey
+    css: styles.css
+    footer: <https://www.ugent.be/dass>
+    theme: skygreen.scss
+  beamer: 
+    theme: Antibes
+    fonttheme: serif
+    slide-level: 3
+execute: 
+  echo: false
+---
+
+
+```{r}
+#| label: setup
+#| include: false
+library(tidyverse)
+library(pander)
+library(kableExtra)
+library(knitr)
+
+data("mtcars")
+
+```
+
+### Quarto ?
+
+ + Successor of Rmarkdown
+ + Language independent (you don't need R)
+ + They've learned a lot from developing Rmarkdown and Bookdown
+ + 90% overlap, but the additional 10% is worth it
+ + If you prefer (staying with) Rmarkdown, consider using [bookdown](https://bookdown.org/yihui/bookdown/)
+ 
+ 
+### This presentation
+
+If you prefer Rmarkdown/Bookdown
+
+  + General recommendations and most of the implementations still hold
+  + If Quarto deviates, focus will be on quarto solution
+ 
+
+
+### Some References
+
+[Official Quarto Guide](https://quarto.org/docs/guide/)
+
+Many Rmarkdown-resources are still relevant:
+
+[Yihui's Rmarkdown book](https://bookdown.org/yihui/rmarkdown/)
+
+[Yihui's Bookdown book](https://bookdown.org/yihui/bookdown/)
+
+[A cheat sheet](https://rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf)
+
+
+### The need for Quarto
+
+An approach where analysis and reporting is strictly separated leads to:
+
+  + Copy-paste of graphs, tables,...
+  + Copy-paste again when the data is updated or the analysis is changed slightly
+  + Errors in the copy-paste process
+  + Reduced reproducibility
+  
+Quarto allows integration of the analysis/Rcode and reporting
+
+
+# Costumizing html-slides
+
+[https://quarto.org/docs/presentations/revealjs/themes.html](https://quarto.org/docs/presentations/revealjs/themes.html)

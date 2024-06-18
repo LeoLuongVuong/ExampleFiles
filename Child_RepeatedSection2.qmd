@@ -1,0 +1,19 @@
+`r sprintf("## Subsection on variable %s",var)`
+
+
+This example is mainly to illustrate the aes_string option in ggplot, which is needed here.
+
+
+
+```{r}
+
+ggplot(df, aes_string(x = "Subsection", y = var))+   
+  geom_boxplot()+
+  theme_bw()
+
+
+```
+
+
+
+\newpage

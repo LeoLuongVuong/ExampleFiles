@@ -1,0 +1,84 @@
+---
+title: "Overview of Forecasting Accuracy"
+author: "Dries Reynders"
+format:
+  html: 
+    toc: true
+    toc-depth: 4
+    embed-resources: true
+    footnotes-hover: true
+    reference-location: margin
+    self-contained: true
+execute: 
+  warning: false
+  message: false
+date: 2023-02-15
+csl: sbr.csl
+editor_options: 
+  chunk_output_type: console
+---
+
+# Intro
+
+This is an example Quarto document for html-output. Of course this could be rendered to pdf as well
+
+## Subsection 1 {#sec-subs1}
+
+Random text
+
+
+### Subsubsection 1
+
+More random text
+
+### Subsubsection 2
+
+Even more random text
+
+## Subsection 2
+
+Here, I would like to refer to @sec-subs1
+
+# Main section
+
+Let's get some data
+
+```{r}
+#| echo: true
+
+data("mtcars")
+
+
+```
+
+The following chunk loads some packages (includes set to false, because loading packages often comes with a lot of unwanted output:
+
+```{{r}}
+#| include: false
+
+library(tidyverse)
+
+```
+
+```{r}
+#| include: false
+
+library(tidyverse)
+
+```
+
+## A graph
+
+```{r}
+#| label: fig-first
+#| out-width: 50%
+#| fig-align: center
+#| fig-cap: First graph
+
+
+ggplot(mtcars, aes(hp, mpg ))+
+  geom_point()+
+  theme_bw()
+
+```
+
